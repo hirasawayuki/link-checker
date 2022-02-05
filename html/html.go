@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"net/url"
+	"strings"
 
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
@@ -26,7 +27,10 @@ func (n *AnchorNode) URL() (*url.URL, error) {
 }
 
 func (n *AnchorNode) String() string {
-	return n.Text + n.Href
+	if n.Text == "" {
+		return "empty"
+	}
+	return strings.TrimSpace(n.Text)
 }
 
 type ImgNode struct {
@@ -39,7 +43,10 @@ func (n *ImgNode) URL() (*url.URL, error) {
 }
 
 func (n *ImgNode) String() string {
-	return n.Alt + n.Src
+	if n.Alt == "" {
+		return "empty"
+	}
+	return strings.TrimSpace(n.Alt)
 }
 func Parse(r io.Reader) ([]Node, error) {
 	parseFns[atom.A.String()] = parseAnchorNode
@@ -50,7 +57,7 @@ func Parse(r io.Reader) ([]Node, error) {
 		return nil, err
 	}
 
-	ns := make([]Node, 0, 1000)
+	ns := make([]Node, 0, 100)
 	parseNodes(&ns, node)
 
 	return ns, nil
