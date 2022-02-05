@@ -61,10 +61,10 @@ func CheckPage(pageURL string) (*CheckResult, error) {
 			return nil, fmt.Errorf("[ERROR] Request failed. url=%s, HTTP Status=%d\n", u, resp.StatusCode)
 		}
 		if resp.StatusCode == http.StatusOK {
-			check.append(n, fmt.Sprintf("✓ HTTP Status: %d URL: %s", resp.StatusCode, url))
+			check.append(n, fmt.Sprintf("✓ HTTP Status: %d URL: %s Text(alt): %s", resp.StatusCode, url, n))
 			continue
 		}
-		check.append(n, fmt.Sprintf("X HTTP Status: %d URL: %s", resp.StatusCode, url))
+		check.append(n, fmt.Sprintf("X HTTP Status: %d URL: %s Text(alt): %s", resp.StatusCode, url, n))
 	}
 
 	return check, nil
