@@ -54,7 +54,7 @@ func CheckPage(pageURL string) (*CheckResults, error) {
 	if err != nil {
 		return nil, err
 	}
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode >= http.StatusBadRequest {
 		return nil, fmt.Errorf("[ERROR] Request failed. url=%s, HTTP Status=%d\n", u, resp.StatusCode)
 	}
 
@@ -114,21 +114,20 @@ func CheckPage(pageURL string) (*CheckResults, error) {
 	}
 
 	if len(errs) > 0 {
-		return nil, errs[0]
+		fmt.Printf("\n[WARNING] %s\n\n", errs[0])
 	}
 
 	return check, nil
 }
 
 func checkStatus(ctx context.Context, url string, n html.Node, check *CheckResults) error {
-	fmt.Println("check status")
 	resp, err := http.Get(url)
 	if err != nil {
-		return fmt.Errorf("[ERROR] Request failed. url=%s, HTTP Status=%d\n", url, resp.StatusCode)
+		return err
 	}
 
 	r := &Result{}
-	if resp.StatusCode == http.StatusOK {
+	if resp.StatusCode < http.StatusBadRequest {
 		r.Text = fmt.Sprintf("✓ HTTP Status: %d URL: %s Text(alt): %s", resp.StatusCode, url, n)
 		r.Status = resp.StatusCode
 		check.append(n, r)
