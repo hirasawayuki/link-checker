@@ -15,8 +15,8 @@ If you want to display HTTP status 200 links as well, add `-a` option.
 $ go run main.go -u='{check page URL}' -a
 ```
 
-`-t` option can be set to set the request interval. (ms)
-Default value is 100.
+`-t` option can be set to set the request interval.
+Default value is 100(ms).
 For example, if you want to make two requests in one second, you can do the following:
 
 ```shell
