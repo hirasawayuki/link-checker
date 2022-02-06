@@ -2,6 +2,10 @@
 link-cheker is a tool to check for broken links.
 By specifying the URL of the page you want to check, you can display a list of broken URLs.
 
+<img width="720" alt="スクリーンショット 2022-02-06 22 14 59" src="https://user-images.githubusercontent.com/48427044/152682723-63413a89-664f-481a-878e-ca035d9e88a4.png">
+
+
+
 ## usage
 
 ```shell
