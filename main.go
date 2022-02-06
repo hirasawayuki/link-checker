@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -11,9 +12,11 @@ import (
 )
 
 var pageURL string
+var all bool
 
 func init() {
 	flag.StringVar(&pageURL, "u", "", "Check page URL.")
+	flag.BoolVar(&all, "a", false, "Display all status.")
 }
 
 func main() {
@@ -22,7 +25,7 @@ func main() {
 
 	flag.Parse()
 	if pageURL == "" {
-		fmt.Println("URL is required.")
+		log.Fatalln("URL is required.")
 		return
 	}
 
@@ -34,11 +37,17 @@ func main() {
 
 	fmt.Println("Link")
 	for _, r := range checkResult.AnchorResults {
-		fmt.Println(r)
+		if !all && r.Status == http.StatusOK {
+			continue
+		}
+		fmt.Println(r.Text)
 	}
 
 	fmt.Println("Image")
 	for _, r := range checkResult.ImgResults {
-		fmt.Println(r)
+		if !all && r.Status == http.StatusOK {
+			continue
+		}
+		fmt.Println(r.Text)
 	}
 }
