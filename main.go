@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
+	"github.com/fatih/color"
 	"github.com/hirasawayuki/link-checker/httprequest"
 )
 
@@ -53,18 +54,20 @@ func main() {
 		checkResult.ImgResults = checkResult.ImgResults[:j]
 	}
 
-	fmt.Println("Link")
+	bold := color.New(color.Bold)
+	fmt.Printf("%s\n", bold.Sprint("[Link]"))
+	successText := color.GreenString("✓ All checks have passed.")
 	if len(checkResult.AnchorResults) == 0 {
-		fmt.Println("All checks have passed.")
+		fmt.Printf("%s\n", successText)
 	} else {
 		for _, r := range checkResult.AnchorResults {
 			fmt.Println(r.Text)
 		}
 	}
 
-	fmt.Printf("\nImage\n")
+	fmt.Printf("\n%s\n", bold.Sprint("[Image]"))
 	if len(checkResult.ImgResults) == 0 {
-		fmt.Println("All checks have passed.")
+		fmt.Printf("%s\n", successText)
 	} else {
 		for _, r := range checkResult.ImgResults {
 			fmt.Println(r.Text)

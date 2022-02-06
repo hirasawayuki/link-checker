@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/hirasawayuki/link-checker/html"
 )
 
@@ -128,13 +129,15 @@ func checkStatus(ctx context.Context, url string, n html.Node, check *CheckResul
 
 	r := &Result{}
 	if resp.StatusCode < http.StatusBadRequest {
-		r.Text = fmt.Sprintf("✓ HTTP Status: %d URL: %s Text(alt): %s", resp.StatusCode, url, n)
+		success := color.GreenString("✓")
+		r.Text = fmt.Sprintf("%s HTTP Status: %d URL: %s Text(alt): %s", success, resp.StatusCode, url, n)
 		r.Status = resp.StatusCode
 		check.append(n, r)
 		return nil
 	}
 
-	r.Text = fmt.Sprintf("X HTTP Status: %d URL: %s Text(alt): %s", resp.StatusCode, url, n)
+	failure := color.RedString("X")
+	r.Text = fmt.Sprintf("%s HTTP Status: %d URL: %s Text(alt): %s", failure, resp.StatusCode, url, n)
 	r.Status = resp.StatusCode
 	check.append(n, r)
 	return nil
