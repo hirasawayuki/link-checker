@@ -35,19 +35,39 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	fmt.Println("Link")
-	for _, r := range checkResult.AnchorResults {
-		if !all && r.Status == http.StatusOK {
-			continue
+	if !all {
+		var i, j int
+		for _, r := range checkResult.AnchorResults {
+			if r.Status >= http.StatusBadRequest {
+				checkResult.AnchorResults[i] = r
+				i++
+			}
 		}
-		fmt.Println(r.Text)
+		checkResult.AnchorResults = checkResult.AnchorResults[:i]
+		for _, r := range checkResult.ImgResults {
+			if r.Status >= http.StatusBadRequest {
+				checkResult.ImgResults[j] = r
+				j++
+			}
+		}
+		checkResult.ImgResults = checkResult.ImgResults[:j]
 	}
 
-	fmt.Println("Image")
-	for _, r := range checkResult.ImgResults {
-		if !all && r.Status == http.StatusOK {
-			continue
+	fmt.Println("Link")
+	if len(checkResult.AnchorResults) == 0 {
+		fmt.Println("All checks have passed.")
+	} else {
+		for _, r := range checkResult.AnchorResults {
+			fmt.Println(r.Text)
 		}
-		fmt.Println(r.Text)
+	}
+
+	fmt.Printf("\nImage\n")
+	if len(checkResult.ImgResults) == 0 {
+		fmt.Println("All checks have passed.")
+	} else {
+		for _, r := range checkResult.ImgResults {
+			fmt.Println(r.Text)
+		}
 	}
 }
