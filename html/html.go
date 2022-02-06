@@ -48,6 +48,7 @@ func (n *ImgNode) String() string {
 	}
 	return strings.TrimSpace(n.Alt)
 }
+
 func Parse(r io.Reader) ([]Node, error) {
 	parseFns[atom.A.String()] = parseAnchorNode
 	parseFns[atom.Img.String()] = parseImgNode
