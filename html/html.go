@@ -85,7 +85,7 @@ func parseAnchorNode(node *html.Node) Node {
 	var href string
 	for _, v := range node.Attr {
 		if v.Key == "href" {
-			href = v.Val
+			href = strings.TrimSpace(v.Val)
 			break
 		}
 	}
@@ -97,7 +97,7 @@ func parseImgNode(node *html.Node) Node {
 	var src, alt string
 	for _, v := range node.Attr {
 		if v.Key == "src" {
-			src = v.Val
+			src = strings.TrimSpace(v.Val)
 		}
 		if v.Key == "alt" {
 			alt = v.Val
