@@ -55,7 +55,7 @@ func main() {
 	}
 
 	bold := color.New(color.Bold)
-	fmt.Printf("%s\n", bold.Sprint("[Link]"))
+	fmt.Printf("\n%s\n", bold.Sprint("[Link]"))
 	successText := color.GreenString("✓ All checks have passed.")
 	if len(checkResult.AnchorResults) == 0 {
 		fmt.Printf("%s\n", successText)

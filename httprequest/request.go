@@ -82,8 +82,7 @@ func CheckPage(pageURL string) (*CheckResults, error) {
 	}()
 
 	errCh := make(chan error, len(ns))
-
-	wg := sync.WaitGroup{}
+	wg := &sync.WaitGroup{}
 	for _, n := range ns {
 		url, err := n.URL()
 		if err != nil {
@@ -115,14 +114,21 @@ func CheckPage(pageURL string) (*CheckResults, error) {
 	}
 
 	if len(errs) > 0 {
-		fmt.Printf("\n[WARNING] %s\n\n", errs[0])
+		fmt.Printf("\n[WARNING] %s\n", errs[0])
 	}
 
 	return check, nil
 }
 
 func checkStatus(ctx context.Context, url string, n html.Node, check *CheckResults) error {
-	resp, err := http.Get(url)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
