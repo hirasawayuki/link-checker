@@ -14,10 +14,12 @@ import (
 
 var pageURL string
 var all bool
+var interval int
 
 func init() {
 	flag.StringVar(&pageURL, "u", "", "Check page URL.")
 	flag.BoolVar(&all, "a", false, "Display all status.")
+	flag.IntVar(&interval, "t", 100, "HTTP request interval time. (ms)")
 }
 
 func main() {
@@ -30,7 +32,7 @@ func main() {
 		return
 	}
 
-	checkResult, err := httprequest.CheckPage(pageURL)
+	checkResult, err := httprequest.CheckPage(pageURL, interval)
 	s.Stop()
 	if err != nil {
 		log.Fatalln(err)

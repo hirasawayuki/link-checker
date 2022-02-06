@@ -13,8 +13,7 @@ import (
 )
 
 const (
-	defaultRequestSpeedMillisecond = 100
-	maxConnectionCount             = 10
+	maxConnectionCount = 10
 )
 
 type CheckResults struct {
@@ -43,8 +42,11 @@ func (cr *CheckResults) append(node html.Node, result *Result) {
 	}
 }
 
-func CheckPage(pageURL string) (*CheckResults, error) {
+func CheckPage(pageURL string, interval int) (*CheckResults, error) {
 	check := &CheckResults{}
+	if interval < 50 {
+		interval = 50
+	}
 	u, err := url.Parse(pageURL)
 	if err != nil {
 		fmt.Printf("[ERROR] Parse URL failed. Plese check page url. (url=%s)\n", pageURL)
@@ -75,7 +77,7 @@ func CheckPage(pageURL string) (*CheckResults, error) {
 	go func() {
 		for {
 			select {
-			case <-time.After(defaultRequestSpeedMillisecond * time.Millisecond):
+			case <-time.After(time.Duration(interval) * time.Millisecond):
 				<-semaphore
 			}
 		}
