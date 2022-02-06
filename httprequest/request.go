@@ -123,7 +123,7 @@ func CheckPage(pageURL string, interval int) (*CheckResults, error) {
 }
 
 func checkStatus(ctx context.Context, url string, n html.Node, check *CheckResults) error {
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	req, err := http.NewRequest(http.MethodHead, url, nil)
 	if err != nil {
 		return err
 	}
