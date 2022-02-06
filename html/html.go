@@ -27,9 +27,6 @@ func (n *AnchorNode) URL() (*url.URL, error) {
 }
 
 func (n *AnchorNode) String() string {
-	if n.Text == "" {
-		return "empty"
-	}
 	return strings.TrimSpace(n.Text)
 }
 
@@ -43,9 +40,6 @@ func (n *ImgNode) URL() (*url.URL, error) {
 }
 
 func (n *ImgNode) String() string {
-	if n.Alt == "" {
-		return "empty"
-	}
 	return strings.TrimSpace(n.Alt)
 }
 
