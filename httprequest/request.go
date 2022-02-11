@@ -86,22 +86,26 @@ func CheckPage(pageURL string, interval int) (*CheckResults, error) {
 	errCh := make(chan error, len(ns))
 	wg := &sync.WaitGroup{}
 	for _, n := range ns {
-		url, err := n.URL()
+		nodeURL, err := n.URL()
 		if err != nil {
 			return nil, fmt.Errorf("[ERROR] Unexpected URL. (err=%w)\n", err)
 		}
-		if url.Host == "" {
-			url.Host = u.Host
+		parsedURL, err := url.Parse(nodeURL)
+		if err != nil {
+			return nil, fmt.Errorf("[ERROR] Invalid URL. (err=%w)\n", err)
 		}
-		if url.Scheme == "" {
-			url.Scheme = u.Scheme
+		if parsedURL.Host == "" {
+			parsedURL.Host = u.Host
+		}
+		if parsedURL.Scheme == "" {
+			parsedURL.Scheme = u.Scheme
 		}
 
 		wg.Add(1)
 		go func(n html.Node) {
 			defer wg.Done()
 			semaphore <- struct{}{}
-			if err := checkStatus(ctx, url.String(), n, check); err != nil {
+			if err := checkStatus(ctx, parsedURL.String(), n, check); err != nil {
 				cancel()
 				errCh <- err
 			}

@@ -1,20 +1,53 @@
 package html
 
 import (
-	"bytes"
 	"io"
 	"net/url"
-	"strings"
 
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )
 
-var parseFns = make(map[string]func(node *html.Node) Node)
+const defaultNodeCap = 300
+
+func Parse(r io.Reader) ([]Node, error) {
+	node, err := html.Parse(r)
+	if err != nil {
+		return nil, err
+	}
+
+	ns := make([]Node, 0, defaultNodeCap)
+
+	p := &parser{parseFncs: make(map[string]parseFnc)}
+	p.registerFnc(atom.A.String(), parseAnchorNode)
+	p.registerFnc(atom.Img.String(), parseImgNode)
+	p.parse(&ns, node)
+	return ns, nil
+}
+
+type parser struct {
+	parseFncs map[string]parseFnc
+}
+
+type parseFnc func(node *html.Node) Node
+
+func (p *parser) registerFnc(key string, fnc parseFnc) {
+	p.parseFncs[key] = fnc
+}
+
+func (p *parser) parse(ns *[]Node, node *html.Node) {
+	for c := node.FirstChild; c != nil; c = c.NextSibling {
+		if c.Type == html.ElementNode {
+			if fnc, ok := p.parseFncs[c.DataAtom.String()]; ok {
+				*ns = append(*ns, fnc(c))
+			}
+			p.parse(ns, c)
+		}
+	}
+}
 
 type Node interface {
-	URL() (*url.URL, error)
-	String() string
+	URL() (string, error)
 }
 
 type AnchorNode struct {
@@ -22,12 +55,12 @@ type AnchorNode struct {
 	Text string
 }
 
-func (n *AnchorNode) URL() (*url.URL, error) {
-	return url.Parse(n.Href)
-}
-
-func (n *AnchorNode) String() string {
-	return strings.TrimSpace(n.Text)
+func (n *AnchorNode) URL() (string, error) {
+	u, err := url.Parse(n.Href)
+	if err != nil {
+		return "", err
+	}
+	return u.String(), nil
 }
 
 type ImgNode struct {
@@ -35,69 +68,10 @@ type ImgNode struct {
 	Alt string
 }
 
-func (n *ImgNode) URL() (*url.URL, error) {
-	return url.Parse(n.Src)
-}
-
-func (n *ImgNode) String() string {
-	return strings.TrimSpace(n.Alt)
-}
-
-func Parse(r io.Reader) ([]Node, error) {
-	parseFns[atom.A.String()] = parseAnchorNode
-	parseFns[atom.Img.String()] = parseImgNode
-
-	node, err := html.Parse(r)
+func (n *ImgNode) URL() (string, error) {
+	u, err := url.Parse(n.Src)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-
-	ns := make([]Node, 0, 100)
-	parseNodes(&ns, node)
-
-	return ns, nil
-}
-
-func parseNodes(ns *[]Node, node *html.Node) {
-	for c := node.FirstChild; c != nil; c = c.NextSibling {
-		if c.Type == html.ElementNode {
-			if f, ok := parseFns[c.DataAtom.String()]; ok {
-				*ns = append(*ns, f(c))
-			}
-			parseNodes(ns, c)
-		}
-	}
-}
-
-func parseAnchorNode(node *html.Node) Node {
-	var buff bytes.Buffer
-	for c := node.FirstChild; c != nil; c = c.NextSibling {
-		if c.Type == html.TextNode {
-			buff.WriteString(c.Data)
-		}
-	}
-
-	var href string
-	for _, v := range node.Attr {
-		if v.Key == "href" {
-			href = strings.TrimSpace(v.Val)
-			break
-		}
-	}
-
-	return &AnchorNode{Text: buff.String(), Href: href}
-}
-
-func parseImgNode(node *html.Node) Node {
-	var src, alt string
-	for _, v := range node.Attr {
-		if v.Key == "src" {
-			src = strings.TrimSpace(v.Val)
-		}
-		if v.Key == "alt" {
-			alt = v.Val
-		}
-	}
-
-	return &ImgNode{Src: src, Alt: alt}
+	return u.String(), nil
 }
