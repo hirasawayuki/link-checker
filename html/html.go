@@ -16,12 +16,10 @@ func Parse(r io.Reader) ([]Node, error) {
 		return nil, err
 	}
 
-	ns := make([]Node, 0, defaultNodeCap)
-
 	p := &parser{parseFncs: make(map[string]parseFnc)}
 	p.registerFnc(atom.A.String(), parseAnchorNode)
 	p.registerFnc(atom.Img.String(), parseImgNode)
-	p.parse(&ns, node)
+	ns := p.parse(node)
 	return ns, nil
 }
 
@@ -35,15 +33,22 @@ func (p *parser) registerFnc(key string, fnc parseFnc) {
 	p.parseFncs[key] = fnc
 }
 
-func (p *parser) parse(ns *[]Node, node *html.Node) {
-	for c := node.FirstChild; c != nil; c = c.NextSibling {
-		if c.Type == html.ElementNode {
-			if fnc, ok := p.parseFncs[c.DataAtom.String()]; ok {
-				*ns = append(*ns, fnc(c))
+func (p *parser) parse(node *html.Node) []Node {
+	ns := make([]Node, 0, defaultNodeCap)
+
+	var f func(*[]Node, *html.Node)
+	f = func(ns *[]Node, node *html.Node) {
+		for c := node.FirstChild; c != nil; c = c.NextSibling {
+			if c.Type == html.ElementNode {
+				if fnc, ok := p.parseFncs[c.DataAtom.String()]; ok {
+					*ns = append(*ns, fnc(c))
+				}
+				f(ns, c)
 			}
-			p.parse(ns, c)
 		}
 	}
+	f(&ns, node)
+	return ns
 }
 
 type Node interface {
