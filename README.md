@@ -9,7 +9,7 @@ By specifying the URL of the page you want to check, you can display a list of b
 ## usage
 
 ```shell
-$ go run main.go -u={check page URL}
+$ go run main.go -u='{check page URL}'
 ```
 
 By default, links with an HTTP status of 400 or higher will be displayed.
