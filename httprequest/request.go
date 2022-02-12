@@ -3,6 +3,7 @@ package httprequest
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"sync"
@@ -32,36 +33,17 @@ func (cr *CheckResults) append(node html.Node, result *Result) {
 	cr.mux.Lock()
 	defer cr.mux.Unlock()
 
-	switch v := node.(type) {
+	switch node.(type) {
 	case *html.AnchorNode:
 		cr.AnchorResults = append(cr.AnchorResults, result)
 	case *html.ImgNode:
 		cr.ImgResults = append(cr.ImgResults, result)
-	default:
-		fmt.Println(v)
 	}
 }
 
-func CheckPage(pageURL string, interval int) (*CheckResults, error) {
+func CheckPage(r io.Reader, host, scheme string, interval int) (*CheckResults, error) {
 	check := &CheckResults{}
-	if interval < 50 {
-		interval = 50
-	}
-	u, err := url.Parse(pageURL)
-	if err != nil {
-		fmt.Printf("[ERROR] Parse URL failed. Plese check page url. (url=%s)\n", pageURL)
-		return nil, fmt.Errorf("[ERROR] Parse URL failed. Plese check page url. (url=%s)\n", pageURL)
-	}
-
-	resp, err := http.Get(u.String())
-	if err != nil {
-		return nil, err
-	}
-	if resp.StatusCode >= http.StatusBadRequest {
-		return nil, fmt.Errorf("[ERROR] Request failed. url=%s, HTTP Status=%d\n", u, resp.StatusCode)
-	}
-
-	ns, err := html.Parse(resp.Body)
+	ns, err := html.Parse(r)
 	if err != nil {
 		return nil, fmt.Errorf("[ERROR] Parse HTML failed. (err=%w)\n", err)
 	}
@@ -74,6 +56,9 @@ func CheckPage(pageURL string, interval int) (*CheckResults, error) {
 		semaphore <- struct{}{}
 	}
 
+	if interval < 50 {
+		interval = 50
+	}
 	go func() {
 		for {
 			select {
@@ -95,10 +80,10 @@ func CheckPage(pageURL string, interval int) (*CheckResults, error) {
 			return nil, fmt.Errorf("[ERROR] Invalid URL. (err=%w)\n", err)
 		}
 		if parsedURL.Host == "" {
-			parsedURL.Host = u.Host
+			parsedURL.Host = host
 		}
 		if parsedURL.Scheme == "" {
-			parsedURL.Scheme = u.Scheme
+			parsedURL.Scheme = scheme
 		}
 
 		wg.Add(1)

@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
+	"net/url"
 
-	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
 	"github.com/hirasawayuki/link-checker/httprequest"
+	"github.com/hirasawayuki/link-checker/iostream"
 )
 
 var pageURL string
@@ -23,8 +23,9 @@ func init() {
 }
 
 func main() {
-	s := spinner.New(spinner.CharSets[11], 100*time.Millisecond)
-	s.Start()
+	iostream := iostream.New()
+	iostream.StartIndicator()
+	defer iostream.StopIndicator()
 
 	flag.Parse()
 	if pageURL == "" {
@@ -32,8 +33,24 @@ func main() {
 		return
 	}
 
-	checkResult, err := httprequest.CheckPage(pageURL, interval)
-	s.Stop()
+	u, err := url.Parse(pageURL)
+	if err != nil {
+		log.Fatalf("[ERROR] Parse URL failed. Plese check page url. (url=%s)\n", pageURL)
+	}
+
+	resp, err := http.Get(u.String())
+	if err != nil {
+		log.Fatalf("[ERROR] Request failed. err=%s", err)
+	}
+	if resp.StatusCode >= http.StatusBadRequest {
+		log.Fatalf("[ERROR] Request failed. url=%s, HTTP Status=%d\n", u, resp.StatusCode)
+	}
+
+	body := resp.Body
+	defer resp.Body.Close()
+	checkResult, err := httprequest.CheckPage(body, u.Host, u.Scheme, interval)
+	iostream.StopIndicator()
+
 	if err != nil {
 		log.Fatalln(err)
 	}
