@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/fatih/color"
 	"github.com/hirasawayuki/link-checker/httprequest"
 	"github.com/hirasawayuki/link-checker/iostream"
 )
@@ -73,20 +72,19 @@ func main() {
 		checkResult.ImgResults = checkResult.ImgResults[:j]
 	}
 
-	bold := color.New(color.Bold)
-	fmt.Printf("\n%s\n", bold.Sprint("[Link]"))
-	successText := color.GreenString("✓ All checks have passed.")
+	font := iostream.Font()
+	fmt.Printf("\n%s\n", font.Bold("[Link]"))
 	if len(checkResult.AnchorResults) == 0 {
-		fmt.Printf("%s\n", successText)
+		fmt.Printf("%s\n", font.Green("✓ All checks have passed."))
 	} else {
 		for _, r := range checkResult.AnchorResults {
 			fmt.Println(r.Text)
 		}
 	}
 
-	fmt.Printf("\n%s\n", bold.Sprint("[Image]"))
+	fmt.Printf("\n%s\n", font.Bold("[Image]"))
 	if len(checkResult.ImgResults) == 0 {
-		fmt.Printf("%s\n", successText)
+		fmt.Printf("%s\n", font.Green("✓ All checks have passed."))
 	} else {
 		for _, r := range checkResult.ImgResults {
 			fmt.Println(r.Text)
