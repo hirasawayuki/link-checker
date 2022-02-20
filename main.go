@@ -22,15 +22,17 @@ func init() {
 }
 
 func main() {
-	iostream := iostream.New()
-	iostream.StartIndicator()
-	defer iostream.StopIndicator()
-
 	flag.Parse()
 	if pageURL == "" {
 		log.Fatalln("URL is required.")
 		return
 	}
+
+	fmt.Printf("Check Page URL: %s\n", pageURL)
+
+	iostream := iostream.New()
+	iostream.StartIndicator()
+	defer iostream.StopIndicator()
 
 	u, err := url.Parse(pageURL)
 	if err != nil {
