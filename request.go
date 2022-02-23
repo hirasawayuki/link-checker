@@ -1,4 +1,4 @@
-package httprequest
+package linkchecker
 
 import (
 	"context"
@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/hirasawayuki/link-checker/html"
 )
 
 const (
@@ -29,21 +28,21 @@ type Result struct {
 	Status int
 }
 
-func (cr *CheckResults) append(node html.Node, result *Result) {
+func (cr *CheckResults) append(node Node, result *Result) {
 	cr.mux.Lock()
 	defer cr.mux.Unlock()
 
 	switch node.(type) {
-	case *html.AnchorNode:
+	case *AnchorNode:
 		cr.AnchorResults = append(cr.AnchorResults, result)
-	case *html.ImgNode:
+	case *ImgNode:
 		cr.ImgResults = append(cr.ImgResults, result)
 	}
 }
 
 func CheckPage(r io.Reader, host, scheme string, interval int) (*CheckResults, error) {
 	check := &CheckResults{}
-	ns, err := html.Parse(r)
+	ns, err := Parse(r)
 	if err != nil {
 		return nil, fmt.Errorf("[ERROR] Parse HTML failed. (err=%w)\n", err)
 	}
@@ -87,7 +86,7 @@ func CheckPage(r io.Reader, host, scheme string, interval int) (*CheckResults, e
 		}
 
 		wg.Add(1)
-		go func(n html.Node) {
+		go func(n Node) {
 			defer wg.Done()
 			semaphore <- struct{}{}
 			if err := checkStatus(ctx, parsedURL.String(), n, check); err != nil {
@@ -111,7 +110,7 @@ func CheckPage(r io.Reader, host, scheme string, interval int) (*CheckResults, e
 	return check, nil
 }
 
-func checkStatus(ctx context.Context, url string, n html.Node, check *CheckResults) error {
+func checkStatus(ctx context.Context, url string, n Node, check *CheckResults) error {
 	req, err := http.NewRequest(http.MethodHead, url, nil)
 	if err != nil {
 		return err
