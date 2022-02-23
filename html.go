@@ -1,8 +1,9 @@
-package html
+package linkchecker
 
 import (
 	"io"
 	"net/url"
+	"strings"
 
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
@@ -79,4 +80,41 @@ func (n *ImgNode) URL() (string, error) {
 		return "", err
 	}
 	return u.String(), nil
+}
+
+func parseAnchorNode(node *html.Node) Node {
+	var text string
+	for c := node.FirstChild; c != nil; c = c.NextSibling {
+		if c.Type == html.TextNode {
+			text = c.Data
+			break
+		}
+	}
+
+	var href string
+	for _, v := range node.Attr {
+		if v.Key == "href" {
+			href = strings.TrimSpace(v.Val)
+			break
+		}
+	}
+
+	return &AnchorNode{Text: text, Href: href}
+}
+
+func parseImgNode(node *html.Node) Node {
+	var src, alt string
+	for _, v := range node.Attr {
+		if v.Key == "src" {
+			src = strings.TrimSpace(v.Val)
+		}
+		if v.Key == "alt" {
+			alt = v.Val
+		}
+		if src != "" && alt != "" {
+			break
+		}
+	}
+
+	return &ImgNode{Src: src, Alt: alt}
 }

@@ -1,4 +1,4 @@
-package html
+package linkchecker
 
 import (
 	"reflect"
