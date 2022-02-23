@@ -1,4 +1,4 @@
-package iostream
+package linkchecker
 
 import (
 	"fmt"
