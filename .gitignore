@@ -5,8 +5,6 @@
 *.so
 *.dylib
 
-link-checker
-
 # Test binary, built with `go test -c`
 *.test
 
