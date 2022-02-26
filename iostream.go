@@ -17,7 +17,7 @@ type IOStream struct {
 	indicator *spinner.Spinner
 }
 
-func New() *IOStream {
+func NewIOStream() *IOStream {
 	return &IOStream{
 		In:     os.Stdin,
 		Out:    os.Stdout,
