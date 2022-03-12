@@ -41,7 +41,7 @@ func (s *IOStream) StopIndicator() {
 	s.indicator = nil
 }
 
-func (s *IOStream) Font() *Font {
+func NewFont() *Font {
 	color := color.New()
 	return &Font{color: color}
 }

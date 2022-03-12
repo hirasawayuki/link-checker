@@ -16,7 +16,7 @@ func Exec(pageURL string, all bool, interval int) error {
 
 	u, err := url.Parse(pageURL)
 	if err != nil {
-		return fmt.Errorf("[ERROR] Parse URL failed. Plese check page url. (url=%s)\n", pageURL)
+		return fmt.Errorf("[ERROR] Parse URL failed. Plese check page url. (url=%s)", pageURL)
 	}
 
 	resp, err := http.Get(u.String())
@@ -24,7 +24,7 @@ func Exec(pageURL string, all bool, interval int) error {
 		return fmt.Errorf("[ERROR] Request failed. err=%s", err)
 	}
 	if resp.StatusCode >= http.StatusBadRequest {
-		return fmt.Errorf("[ERROR] Request failed. url=%s, HTTP Status=%d\n", u, resp.StatusCode)
+		return fmt.Errorf("[ERROR] Request failed. url=%s, HTTP Status=%d", u, resp.StatusCode)
 	}
 
 	body := resp.Body
@@ -54,7 +54,7 @@ func Exec(pageURL string, all bool, interval int) error {
 		checkResult.ImgResults = checkResult.ImgResults[:j]
 	}
 
-	font := iostream.Font()
+	font := NewFont()
 	fmt.Printf("\n%s\n", font.Bold("[Link]"))
 	if len(checkResult.AnchorResults) == 0 {
 		fmt.Printf("%s\n", font.Green("✓ All checks have passed."))
