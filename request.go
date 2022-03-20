@@ -44,7 +44,7 @@ func CheckPage(r io.Reader, host, scheme string, interval int) (*CheckResults, e
 	check := &CheckResults{}
 	ns, err := Parse(r)
 	if err != nil {
-		return nil, fmt.Errorf("[ERROR] Parse HTML failed. (err=%w)\n", err)
+		return nil, fmt.Errorf("[ERROR] Parse HTML failed. (err=%w)", err)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -72,11 +72,11 @@ func CheckPage(r io.Reader, host, scheme string, interval int) (*CheckResults, e
 	for _, n := range ns {
 		nodeURL, err := n.URL()
 		if err != nil {
-			return nil, fmt.Errorf("[ERROR] Unexpected URL. (err=%w)\n", err)
+			return nil, fmt.Errorf("[ERROR] Unexpected URL. (err=%w)", err)
 		}
 		parsedURL, err := url.Parse(nodeURL)
 		if err != nil {
-			return nil, fmt.Errorf("[ERROR] Invalid URL. (err=%w)\n", err)
+			return nil, fmt.Errorf("[ERROR] Invalid URL. (err=%w)", err)
 		}
 		if parsedURL.Host == "" {
 			parsedURL.Host = host
