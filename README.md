@@ -26,3 +26,4 @@ For example, if you want to make two requests in one second, you can do the foll
 ```shell
 $ go run cmd/link-checker/main.go -u='{check page URL}' -t 500
 ```
+[![Go](https://github.com/hirasawayuki/link-checker/actions/workflows/go.yml/badge.svg)](https://github.com/hirasawayuki/link-checker/actions/workflows/go.yml)
